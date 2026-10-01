@@ -1,9 +1,11 @@
 class SoundEffectManager {
   private ctx: AudioContext | null = null;
   public muted: boolean = false;
+  // Kept separate from `muted` so un-muting after an ad never un-mutes a player-muted game.
+  private adMuted: boolean = false;
 
   private ensureContext(): AudioContext | null {
-    if (this.muted) return null;
+    if (this.muted || this.adMuted) return null;
     if (!this.ctx && typeof window !== 'undefined') {
       const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
       if (AudioCtx) {
@@ -14,6 +16,11 @@ class SoundEffectManager {
       this.ctx.resume().catch(() => {});
     }
     return this.ctx;
+  }
+
+  /** Portal requirement: silence all audio while an ad is playing. */
+  public setAdMuted(m: boolean) {
+    this.adMuted = m;
   }
 
   public playFlapLift() {

@@ -62,8 +62,9 @@ interface RunSummary {
 }
 
 const CANVAS_W = 960;
-const CANVAS_H = 560;
-const GROUND_Y = 468;
+// 960x540 is exactly 16:9, which is Poki's required portal aspect ratio.
+const CANVAS_H = 540;
+const GROUND_Y = 452;
 
 export const FlyingToupeeGameCanvas: React.FC<FlyingToupeeGameCanvasProps> = ({
   mode,

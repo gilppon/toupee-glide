@@ -264,7 +264,7 @@ export const FlyingToupeeGameCanvas: React.FC<FlyingToupeeGameCanvasProps> = ({
         phaseRef.current = 'flying';
         setPhase('flying');
         soundFX.playFlapLift();
-        spawnCallout(150, 145, 'GUST LAUNCH!', '#38BDF8');
+        spawnCallout(150, 145, 'UP AND AWAY!', '#38BDF8');
       } else {
         phaseRef.current = 'ready';
         setPhase('ready');
@@ -498,7 +498,7 @@ export const FlyingToupeeGameCanvas: React.FC<FlyingToupeeGameCanvasProps> = ({
           if (b.landingWindowTimer <= 0) {
             b.isVulnerable = false;
             b.cooldownTimer = 3.2;
-            spawnCallout(b.x, b.y - 55, 'DOWNDRAFT BACK ON!', '#F43F5E');
+            spawnCallout(b.x, b.y - 55, 'ROTOR GALE IS BACK!', '#F43F5E');
           }
           setBossWindowState({
             isVulnerable: b.isVulnerable,
@@ -515,7 +515,7 @@ export const FlyingToupeeGameCanvas: React.FC<FlyingToupeeGameCanvasProps> = ({
               b.y - 60,
               'LANDING WINDOW OPEN!',
               '#10B981',
-              'Downdraft weak. Hit the scalp!'
+              'Rotor wind weak. Hit the scalp!'
             );
           }
           setBossWindowState({
@@ -606,7 +606,7 @@ export const FlyingToupeeGameCanvas: React.FC<FlyingToupeeGameCanvasProps> = ({
                   ? `HONEY HOP! x${hopsRef.current}`
                   : `HOP! ${hopsRef.current} in a row`,
                 check.isHoney ? '#F59E0B' : '#10B981',
-                `+${goldTip}G · +${hopBonus} PTS`
+                `+${goldTip.toLocaleString('en-US')}G · +${hopBonus.toLocaleString('en-US')} PTS`
               );
             } else {
               // STAGE MODE
@@ -621,7 +621,7 @@ export const FlyingToupeeGameCanvas: React.FC<FlyingToupeeGameCanvasProps> = ({
                 spawnCallout(
                   g.x,
                   g.y - 55,
-                  `First client seated! (+${goldTip}G)`,
+                  `Client seated! (+${goldTip.toLocaleString('en-US')}G)`,
                   '#10B981',
                   'Now hop to the next scalp!'
                 );
@@ -639,14 +639,14 @@ export const FlyingToupeeGameCanvas: React.FC<FlyingToupeeGameCanvasProps> = ({
                 spawnCallout(
                   g.x,
                   g.y - 64,
-                  check.isHoney ? 'HONEY LANDING! (100%)' : `SEATED! (${check.accuracy}%)`,
+                  check.isHoney ? 'HONEY LANDING! 100%' : `SEATED! ${check.accuracy}%`,
                   check.isHoney ? '#F59E0B' : '#10B981',
-                  `"${g.quoteLanded}" (+${runGoldRef.current}G)`
+                  `"${g.quoteLanded}"`
                 );
 
                 setSummary({
                   won: true,
-                  title: check.isHoney ? 'PERFECT HONEY LANDING!' : 'Seated on a bald gentleman!',
+                  title: check.isHoney ? 'PERFECT HONEY LANDING!' : 'SEATED ON A BALD GENTLEMAN!',
                   subtitle: `${g.name}: "${g.quoteLanded}"`,
                   accuracy: check.accuracy,
                   isHoney: check.isHoney,
@@ -697,13 +697,13 @@ export const FlyingToupeeGameCanvas: React.FC<FlyingToupeeGameCanvasProps> = ({
               bossHeadY - 60,
               'CEO SCALP TAKEDOWN!',
               '#F59E0B',
-              `"You punched through my rotor wind and fitted a wig. Impressive!" (+${bossReward}G)`
+              `"Fitted a wig in a hurricane. Impressive!" (+${bossReward.toLocaleString('en-US')}G)`
             );
 
             setSummary({
               won: true,
               title: 'CEO BOSS SCALP TAKEDOWN!',
-              subtitle: 'You flew straight through the helicopter downdraft and seated it perfectly.',
+              subtitle: 'You flew straight through the rotor gale and seated it perfectly.',
               accuracy: check.accuracy,
               isHoney: check.isHoney,
               goldEarned: runGoldRef.current,
@@ -725,9 +725,9 @@ export const FlyingToupeeGameCanvas: React.FC<FlyingToupeeGameCanvasProps> = ({
             spawnCallout(
               body.x,
               body.y - 30,
-              `ENDLESS RUN OVER (${hopsRef.current} HOPS)`,
+              `RUN OVER (${hopsRef.current} HOPS)`,
               '#F43F5E',
-              `Gold banked: +${runGoldRef.current}G`
+              `Gold banked: +${runGoldRef.current.toLocaleString('en-US')}G`
             );
             setSummary({
               won: hopsRef.current > 0,
@@ -735,7 +735,7 @@ export const FlyingToupeeGameCanvas: React.FC<FlyingToupeeGameCanvasProps> = ({
               subtitle:
                 hopsRef.current >= 5
                   ? 'Outstanding hang time. This is going on the board.'
-                  : 'Upgrade lift ratio or magnet force to chain more hops.',
+                  : 'Upgrade your lift & glide ratio or magnet force to chain more hops.',
               accuracy: 100,
               isHoney: hopsRef.current >= 5,
               goldEarned: runGoldRef.current,
@@ -752,7 +752,7 @@ export const FlyingToupeeGameCanvas: React.FC<FlyingToupeeGameCanvasProps> = ({
             spawnCallout(
               body.x,
               body.y - 30,
-              'The toupee hit the pavement...',
+              'The toupee hit the sidewalk...',
               '#F43F5E',
               'Dust it off and launch again!'
             );
@@ -762,7 +762,7 @@ export const FlyingToupeeGameCanvas: React.FC<FlyingToupeeGameCanvasProps> = ({
               subtitle:
                 curMode === 'boss'
                   ? 'Ride the lift vents on both sides and time the 3-second landing window.'
-                  : 'Holding the click gives you a much bigger glide lift.',
+                  : 'Holding the click gives you a lot more lift.',
               accuracy: 0,
               isHoney: false,
               goldEarned: runGoldRef.current,
@@ -855,7 +855,7 @@ export const FlyingToupeeGameCanvas: React.FC<FlyingToupeeGameCanvasProps> = ({
       ctx.fillStyle = '#FDE047';
       ctx.font = '800 13px "Jua", sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText('GOLDEN WIG SUIT', 90, 239);
+      ctx.fillText('TUPEE BOUTIQUE', 90, 239);
 
       // Launch Mannequin Stand on Balcony Roof
       ctx.fillStyle = '#FDBA74';
@@ -952,7 +952,7 @@ export const FlyingToupeeGameCanvas: React.FC<FlyingToupeeGameCanvasProps> = ({
         ctx.font = '800 11px "Jua", sans-serif';
         ctx.textAlign = 'center';
         ctx.fillText(
-          'MAGNET PULL ACTIVE',
+          'MAGNET FORCE ON',
           (body.x + body.magnetTarget.x) / 2,
           (body.y + body.magnetTarget.y) / 2 - 8
         );
@@ -1055,7 +1055,7 @@ export const FlyingToupeeGameCanvas: React.FC<FlyingToupeeGameCanvasProps> = ({
             <Wind className="w-3.5 h-3.5" />
             WIND{' '}
             <strong className="font-mono-num">
-              {windHud.wx >= 0 ? `+${windHud.wx}` : windHud.wx}m/s
+              {windHud.wx >= 0 ? `+${windHud.wx}` : windHud.wx}px/s
             </strong>
           </span>
           <span className="text-slate-500">|</span>
@@ -1175,7 +1175,7 @@ export const FlyingToupeeGameCanvas: React.FC<FlyingToupeeGameCanvasProps> = ({
                 <div className="rounded-2xl bg-amber-50 p-3 border-2 border-slate-800 text-center">
                   <div className="text-xs font-bold text-slate-500">Flight earnings</div>
                   <div className="font-mono-num font-black text-xl text-amber-600 mt-0.5">
-                    +{summary.goldEarned} G
+                    +{summary.goldEarned.toLocaleString('en-US')} G
                   </div>
                 </div>
 
@@ -1218,7 +1218,7 @@ export const FlyingToupeeGameCanvas: React.FC<FlyingToupeeGameCanvasProps> = ({
                   >
                     <span>
                       {saveData.currentStage % 3 === 0
-                        ? 'ENTER CEO BOSS FIGHT!'
+                        ? 'FACE THE CEO BOSS!'
                         : `LAUNCH STAGE ${saveData.currentStage}`}
                     </span>
                     <ArrowRight className="w-4 h-4" />
@@ -1229,7 +1229,7 @@ export const FlyingToupeeGameCanvas: React.FC<FlyingToupeeGameCanvasProps> = ({
                     className="flex-1 py-2.5 px-4 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-white font-display text-base flex items-center justify-center gap-1.5 comic-btn cursor-pointer"
                   >
                     <Play className="w-4 h-4" />
-                    <span>Fly again</span>
+                    <span>Relaunch</span>
                   </button>
                 )}
               </div>

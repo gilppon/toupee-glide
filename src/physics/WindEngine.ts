@@ -88,7 +88,7 @@ export class WindEngine {
         vx: 30,
         vy: -195,
         type: 'updraft',
-        label: 'STATION HEAT',
+        label: 'LIFT VENT',
       });
       return;
     }
@@ -107,7 +107,7 @@ export class WindEngine {
       vx: 20,
       vy: -220,
       type: 'updraft',
-      label: 'UPDRAFT',
+      label: 'LIFT VENT',
     });
 
     if (stage >= 2) {
@@ -123,7 +123,7 @@ export class WindEngine {
         vx: isDowndraft ? -35 : 95,
         vy: isDowndraft ? 165 : -75,
         type: isDowndraft ? 'downdraft' : 'gust',
-        label: isDowndraft ? 'BUILDING DOWNWIND' : 'JET GALE',
+        label: isDowndraft ? 'DOWNDRAFT' : 'JET GALE',
       });
     }
   }

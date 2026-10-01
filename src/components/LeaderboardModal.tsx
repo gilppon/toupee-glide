@@ -48,10 +48,10 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({
             </div>
             <div>
               <h2 className="font-display text-xl sm:text-2xl text-slate-900">
-                Endless Hop Hall of Fame
+                Endless Hopping Hall of Fame
               </h2>
               <p className="text-xs font-bold text-slate-600">
-                Chain hops from scalp to scalp without ever touching the ground!
+                Chain hops from scalp to scalp without ever touching the sidewalk!
               </p>
             </div>
           </div>
@@ -81,7 +81,7 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({
               </div>
             </div>
             <div className="rounded-2xl bg-rose-100 p-3 comic-panel-sm text-center">
-              <div className="text-xs font-bold text-slate-600">CEO boss kills</div>
+              <div className="text-xs font-bold text-slate-600">CEO boss takedowns</div>
               <div className="font-mono-num font-black text-2xl text-rose-600 mt-0.5">
                 {saveData.bossDefeatedCount} <span className="text-sm">times</span>
               </div>

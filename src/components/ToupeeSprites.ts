@@ -362,7 +362,7 @@ export function drawBaldGentleman(
   }
 
   // 8. Name & status tag below feet
-  ctx.font = '700 11px "Noto Sans KR", sans-serif';
+  ctx.font = '700 11px "Nunito", sans-serif';
   ctx.textAlign = 'center';
   ctx.fillStyle = 'rgba(15, 23, 42, 0.78)';
   ctx.beginPath();
@@ -545,7 +545,7 @@ export function drawBossHelicopter(
       ctx.fillStyle = '#FFFFFF';
       ctx.font = '800 12px "Jua", sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText(`LANDING WINDOW ${boss.landingWindowTimer.toFixed(1)}s`, headX, crownY - 28);
+      ctx.fillText(`WINDOW! ${boss.landingWindowTimer.toFixed(1)}s`, headX, crownY - 28);
       ctx.restore();
     } else {
       // Warning badge when rotor downdraft is at full blast
@@ -560,7 +560,7 @@ export function drawBossHelicopter(
       ctx.fillStyle = '#FFFFFF';
       ctx.font = '700 11px "Jua", sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText(`GALE! WINDOW IN ${boss.cooldownTimer.toFixed(1)}s`, headX, crownY - 27);
+      ctx.fillText(`WINDOW IN ${boss.cooldownTimer.toFixed(1)}s`, headX, crownY - 27);
       ctx.restore();
     }
   }

@@ -530,12 +530,12 @@ export function App() {
         <div className="flex items-center gap-3">
           <span className="px-2 py-0.5 rounded-md bg-slate-900 text-amber-300 font-display">CONTROLS</span>
           <span>
-            CLICK / TAP / <kbd className="px-1.5 py-0.5 bg-slate-200 rounded border border-slate-400 font-mono-num">SPACE</kbd> : flap for lift, hold to glide
+            CLICK / TAP / <kbd className="px-1.5 py-0.5 bg-slate-200 rounded border border-slate-400 font-mono-num">SPACE</kbd>: flap for lift, hold to glide
           </span>
           <span className="hidden md:inline text-slate-400">|</span>
           <span className="hidden md:inline">
             <kbd className="px-1.5 py-0.5 bg-slate-200 rounded border border-slate-400 font-mono-num">←</kbd>{' '}
-            <kbd className="px-1.5 py-0.5 bg-slate-200 rounded border border-slate-400 font-mono-num">→</kbd> : trim into the wind
+            <kbd className="px-1.5 py-0.5 bg-slate-200 rounded border border-slate-400 font-mono-num">→</kbd>: trim into the wind
           </span>
         </div>
 

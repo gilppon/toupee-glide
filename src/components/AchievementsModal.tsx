@@ -107,7 +107,7 @@ export const AchievementsModal: React.FC<AchievementsModalProps> = ({
           >
             {unclaimed.length === 0
               ? 'Nothing to claim'
-              : `Claim ${unclaimed.length} · +${unclaimed.length * 200}G`}
+              : `Claim ${unclaimed.length} · +${(unclaimed.length * 200).toLocaleString('en-US')}G`}
           </button>
         </div>
       </div>

@@ -10,7 +10,7 @@ export const TOUPEE_STYLES: Record<ToupeeStyleId, ToupeeStyleConfig> = {
   classic: {
     id: 'classic',
     nameEn: 'Classic Gentleman',
-    tagline: 'The 2:8 side part, perfected. Sits naturally on any bald head.',
+    tagline: 'The 2:8 side part, perfected. Sits on any bald head.',
     price: 0,
     glideBonus: 1.0,
     magnetBonus: 0,
@@ -22,7 +22,7 @@ export const TOUPEE_STYLES: Record<ToupeeStyleId, ToupeeStyleConfig> = {
   afro: {
     id: 'afro',
     nameEn: 'Afro Funk Cloud',
-    tagline: 'Enormous volume turns air resistance into a parachute. Updraft lift +20%',
+    tagline: 'Volume turns drag into a parachute. Updraft lift +20%',
     price: 250,
     glideBonus: 1.22,
     magnetBonus: 12,
@@ -34,7 +34,7 @@ export const TOUPEE_STYLES: Record<ToupeeStyleId, ToupeeStyleConfig> = {
   elvis: {
     id: 'elvis',
     nameEn: 'Elvis Pompadour',
-    tagline: 'Ultra-strong wax holds a steel forward sweep. Punches through headwinds.',
+    tagline: 'Steel-strong wax. Punches straight through headwinds.',
     price: 550,
     glideBonus: 1.35,
     magnetBonus: 22,
@@ -46,7 +46,7 @@ export const TOUPEE_STYLES: Record<ToupeeStyleId, ToupeeStyleConfig> = {
   rainbow: {
     id: 'rainbow',
     nameEn: 'Rainbow Prism Wig',
-    tagline: 'Seven-colour static charge. Huge magnet pull plus a 50% bigger tip.',
+    tagline: 'Static charge: huge magnet pull, 50% bigger tips.',
     price: 950,
     glideBonus: 1.48,
     magnetBonus: 38,
@@ -58,7 +58,7 @@ export const TOUPEE_STYLES: Record<ToupeeStyleId, ToupeeStyleConfig> = {
   golden: {
     id: 'golden',
     nameEn: '24K Golden Crown',
-    tagline: 'Pure 24K weft the CEO himself admired. Best hang time and honey landings.',
+    tagline: '24K weft the CEO admired. Best hang time, honey landings.',
     price: 1600,
     glideBonus: 1.65,
     magnetBonus: 52,

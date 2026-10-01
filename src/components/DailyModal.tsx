@@ -52,7 +52,7 @@ export const DailyModal: React.FC<DailyModalProps> = ({ isOpen, onClose, daily, 
                   }`}
                 >
                   <div className="text-[10px] font-black text-slate-500">D{day}</div>
-                  <div className="font-mono-num font-black text-sm text-amber-600">{amount}G</div>
+                  <div className="font-mono-num font-black text-sm text-amber-600">{amount.toLocaleString('en-US')}G</div>
                   <div className="text-[9px] font-bold text-slate-500">{claimed ? 'DONE' : isNext ? 'CLAIM' : '—'}</div>
                 </div>
               );
@@ -72,12 +72,13 @@ export const DailyModal: React.FC<DailyModalProps> = ({ isOpen, onClose, daily, 
             <span>
               {daily.claimedToday
                 ? 'Already collected today'
-                : `Day ${daily.nextDay} · Claim ${daily.reward}G`}
+                : `Day ${daily.nextDay} · Claim ${daily.reward.toLocaleString('en-US')}G`}
             </span>
           </button>
 
           <p className="text-[11px] font-bold text-slate-500 text-center leading-relaxed">
-            A miss resets the streak to day 1. Day 7 pays {DAILY_REWARDS[DAILY_REWARDS.length - 1]}G, twice day 1.
+            A miss resets the streak to day 1. Day 7 pays{' '}
+            {DAILY_REWARDS[DAILY_REWARDS.length - 1].toLocaleString('en-US')}G, twice day 1.
           </p>
         </div>
       </div>

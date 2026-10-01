@@ -44,7 +44,7 @@ export type GamePhase =
   | 'ready'       // Standing on the barbershop launch balcony
   | 'flying'      // Gliding in mid-air
   | 'landed'      // Successfully seated on a bald gentleman (stage/boss win)
-  | 'crashed'     // Hit the pavement or missed the target
+  | 'crashed'     // Hit the sidewalk or missed the target
   | 'paused';     // Auto-paused when the tab loses focus
 
 export interface WindZone {

@@ -9,7 +9,7 @@ export interface CoachStep {
 export const COACH_STEPS: CoachStep[] = [
   {
     title: '1. Hold to flap',
-    body: 'Press and hold anywhere on the sky to keep climbing. Tap for a quick beat, hold for real lift.',
+    body: 'Press and hold anywhere to keep climbing. Tap for a quick beat, hold for real lift.',
     anchor: 'canvas',
   },
   {
@@ -19,7 +19,7 @@ export const COACH_STEPS: CoachStep[] = [
   },
   {
     title: '3. Land on a bald head',
-    body: 'Aim at a shiny scalp. The closer to dead centre, the bigger the tip and the honey bonus.',
+    body: 'Aim at a shiny scalp. The closer to dead center, the bigger the tip and the honey bonus.',
     anchor: 'flap',
   },
 ];

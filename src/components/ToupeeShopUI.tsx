@@ -275,7 +275,7 @@ export const ToupeeShopUI: React.FC<ToupeeShopUIProps> = ({
                 </h3>
               </div>
               <span className="text-xs font-bold text-slate-500">
-                Each toupee grants its own lift, magnet and tip bonus!
+                Every toupee brings its own lift, magnet and tips!
               </span>
             </div>
 

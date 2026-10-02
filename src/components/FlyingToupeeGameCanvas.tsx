@@ -48,6 +48,8 @@ interface FlyingToupeeGameCanvasProps {
   onSwitchMode: (mode: GameMode) => void;
   onRunGoldEarned: (gold: number) => void;
   onTutorialDone: () => void;
+  /** Poki: fired on the player's very first interaction with the game surface. */
+  onFirstInput: () => void;
 }
 
 interface RunSummary {
@@ -77,6 +79,7 @@ export const FlyingToupeeGameCanvas: React.FC<FlyingToupeeGameCanvasProps> = ({
   onSwitchMode,
   onRunGoldEarned,
   onTutorialDone,
+  onFirstInput,
 }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
@@ -285,6 +288,7 @@ export const FlyingToupeeGameCanvas: React.FC<FlyingToupeeGameCanvasProps> = ({
   const handleTriggerLift = useCallback(() => {
     const p = phaseRef.current;
     if (p === 'landed' || p === 'crashed' || p === 'paused') return;
+    onFirstInput();
 
     if (p === 'ready') {
       phaseRef.current = 'flying';
@@ -339,6 +343,7 @@ export const FlyingToupeeGameCanvas: React.FC<FlyingToupeeGameCanvasProps> = ({
 
   // Coach: 3 steps, then persisted so it never shows up twice.
   const advanceCoach = useCallback(() => {
+    onFirstInput();
     setCoachStep((prev) => {
       if (prev == null) return null;
       if (prev >= COACH_STEPS.length - 1) {
@@ -350,9 +355,10 @@ export const FlyingToupeeGameCanvas: React.FC<FlyingToupeeGameCanvasProps> = ({
   }, [onTutorialDone]);
 
   const skipCoach = useCallback(() => {
+    onFirstInput();
     setCoachStep(null);
     onTutorialDone();
-  }, [onTutorialDone]);
+  }, [onTutorialDone, onFirstInput]);
 
   // Keyboard controls (Space / Up Arrow / W for Lift, Left/Right for aerodynamic trim)
   useEffect(() => {

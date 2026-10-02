@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import {
   Store,
   Trophy,
@@ -92,17 +92,39 @@ export function App() {
     }
   }, [saveData]);
 
-  // Portal SDK init + mock ad UI registration
+  // Portal SDK init + mock ad UI registration.
+  // Poki requires gameLoadingFinished() on load but gameplayStart() only on the
+  // player's first input, so gameplayStart is NOT fired here (see firstInput below).
   useEffect(() => {
     registerAdUI((kind, done) => setAd({ kind, done }));
     void Ads.init().then(() => {
       Ads.loadingFinished();
-      Ads.gameplayStart();
     });
     return () => {
       registerAdUI(null);
       Ads.gameplayStop();
     };
+  }, []);
+
+  /**
+   * Poki rules this enforces:
+   *  - gameplayStart() must fire on the player's first input, not on load
+   *  - SDK events must never fire twice in succession
+   *  - mode switch order is gameplayStop() -> commercialBreak() -> gameplayStart()
+   */
+  const gameplayRunningRef = useRef(false);
+
+  /** Fires gameplayStart() exactly once, the first time the player does anything. */
+  const ensureGameplayStarted = useCallback(() => {
+    if (gameplayRunningRef.current) return;
+    gameplayRunningRef.current = true;
+    Ads.gameplayStart();
+  }, []);
+
+  const endGameplay = useCallback(() => {
+    if (!gameplayRunningRef.current) return;
+    gameplayRunningRef.current = false;
+    Ads.gameplayStop();
   }, []);
 
   const toggleMute = () => {
@@ -299,7 +321,11 @@ export function App() {
     }
   }, [rewardedGold, adBusy]);
 
-  /** Interstitial only at the rest point between runs (every 2nd run). */
+  /**
+   * Interstitial only at the rest point between runs (every 2nd run).
+   * Callers must already have fired gameplayStop(); Poki's order is
+   * gameplayStop() -> commercialBreak() -> gameplayStart().
+   */
   const leaveTo = useCallback(
     (next: () => void) => {
       if (runCount > 0 && runCount % 2 === 0) {
@@ -313,13 +339,16 @@ export function App() {
 
   const handleSwitchMode = useCallback(
     (next: GameMode) => {
-      Ads.gameplayStop();
+      // Any tab click is a real player input, so it can be the first one.
+      ensureGameplayStarted();
+      endGameplay();
       leaveTo(() => {
         setMode(next);
+        gameplayRunningRef.current = true;
         Ads.gameplayStart();
       });
     },
-    [leaveTo]
+    [leaveTo, ensureGameplayStarted, endGameplay]
   );
 
   const canAffordUpgrade =
@@ -522,6 +551,7 @@ export function App() {
           onSwitchMode={handleSwitchMode}
           onRunGoldEarned={setRewardedGold}
           onTutorialDone={handleTutorialDone}
+          onFirstInput={ensureGameplayStarted}
         />
       </main>
 

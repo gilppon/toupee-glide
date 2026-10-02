@@ -171,6 +171,13 @@ export function drawBaldGentleman(
   const cx = g.x;
   const cy = g.y - walkBounce;
 
+  // 0. Soft contact shadow on the ground (static while the body bobs, so steps
+  // read as weight). Drawn first; the name tag later covers its center.
+  ctx.fillStyle = 'rgba(15, 23, 42, 0.20)';
+  ctx.beginPath();
+  ctx.ellipse(cx, g.y + 64, 25, 4.5, 0, 0, Math.PI * 2);
+  ctx.fill();
+
   // 1. Target bullseye indicator above the gentleman's shiny head if not yet landed
   if (!g.hasToupeeLanded && isPrimaryTarget) {
     const pulse = 1 + Math.sin(time * 7) * 0.12;
@@ -242,6 +249,13 @@ export function drawBaldGentleman(
   ctx.moveTo(cx + 9, cy + 52);
   ctx.lineTo(cx + 9 - legSwing, cy + 66);
   ctx.stroke();
+
+  // Dress shoes cap the swinging feet (outline color reads as dark leather)
+  ctx.fillStyle = '#1E293B';
+  ctx.beginPath();
+  ctx.ellipse(cx - 9 + legSwing, cy + 65, 7.5, 4.2, 0, 0, Math.PI * 2);
+  ctx.ellipse(cx + 9 - legSwing, cy + 65, 7.5, 4.2, 0, 0, Math.PI * 2);
+  ctx.fill();
 
   // 3. Ears
   ctx.lineWidth = 2.5;

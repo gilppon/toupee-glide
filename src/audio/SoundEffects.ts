@@ -23,6 +23,60 @@ class SoundEffectManager {
     this.adMuted = m;
   }
 
+  // ---- Background music: bouncy C-major loop, no assets ----
+  private musicTimer: number | null = null;
+  private musicStep = 0;
+
+  private blip(freq: number, dur: number, type: OscillatorType, vol: number, when = 0) {
+    const ctx = this.ctx;
+    if (!ctx) return;
+    const now = ctx.currentTime + when;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, now);
+    gain.gain.setValueAtTime(vol, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + dur);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(now);
+    osc.stop(now + dur + 0.02);
+  }
+
+  /** Idempotent. Call from a user gesture; AudioContext requires one. */
+  public startMusic() {
+    if (this.musicTimer !== null || typeof window === 'undefined') return;
+    const ctx = this.ensureContext();
+    if (!ctx) return;
+    this.musicStep = 0;
+    this.musicTimer = window.setInterval(() => this.musicTick(), 150);
+  }
+
+  public stopMusic() {
+    if (this.musicTimer !== null) {
+      window.clearInterval(this.musicTimer);
+      this.musicTimer = null;
+    }
+  }
+
+  private musicTick() {
+    // Never schedule while muted, ad-muted, hidden, or suspended; tails fade.
+    if (this.muted || this.adMuted || document.hidden || !this.ctx) return;
+    if (this.ctx.state !== 'running') return;
+    const s = this.musicStep++ % 32;
+    // Bouncy bassline: C - G - A - F, two bars of eighth notes.
+    const bass = [130.81, 130.81, 196.0, 196.0, 174.61, 174.61, 196.0, 196.0,
+      130.81, 130.81, 196.0, 196.0, 174.61, 174.61, 146.83, 146.83];
+    this.blip(bass[s % 16], 0.14, 'triangle', 0.055);
+    // Sparse music-box lead on the off-beats, C major pentatonic.
+    if (s % 4 === 2) {
+      const lead = [523.25, 587.33, 659.25, 783.99, 880.0, 783.99, 659.25, 587.33];
+      this.blip(lead[(s >> 2) % 8], 0.22, 'sine', 0.045);
+    }
+    // Soft tick on every other step.
+    if (s % 2 === 0) this.blip(6000, 0.03, 'sine', 0.006);
+  }
+
   public playFlapLift() {
     const ctx = this.ensureContext();
     if (!ctx) return;

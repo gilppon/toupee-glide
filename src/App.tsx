@@ -119,6 +119,8 @@ export function App() {
     if (gameplayRunningRef.current) return;
     gameplayRunningRef.current = true;
     Ads.gameplayStart();
+    // Music needs the same first gesture as the AudioContext itself.
+    soundFX.startMusic();
   }, []);
 
   const endGameplay = useCallback(() => {
@@ -131,6 +133,8 @@ export function App() {
     const next = !isMuted;
     setIsMuted(next);
     soundFX.muted = next;
+    // Unmuting is a gesture: (re)start the loop if it never got going.
+    if (!next) soundFX.startMusic();
   };
 
   // Shop Actions

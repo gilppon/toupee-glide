@@ -25,6 +25,7 @@ import { DailyModal } from './components/DailyModal';
 import { AchievementsModal } from './components/AchievementsModal';
 import AdOverlay from './components/AdOverlay';
 import { Ads, registerAdUI } from './game/ads';
+import { readToupeeChallenge } from './game/share';
 import type { AdKind } from './game/ads';
 import {
   DEFAULT_SAVE_DATA,
@@ -62,7 +63,9 @@ export function App() {
     }
   });
 
-  const [mode, setMode] = useState<GameMode>('stage');
+  const [mode, setMode] = useState<GameMode>(() => readToupeeChallenge()?.mode ?? 'stage');
+  const [challengeDismissed, setChallengeDismissed] = useState(false);
+  const incomingChallenge = readToupeeChallenge();
   const [isShopOpen, setIsShopOpen] = useState(false);
   const [isLeaderboardOpen, setIsLeaderboardOpen] = useState(false);
   const [isDailyOpen, setIsDailyOpen] = useState(false);
@@ -367,6 +370,16 @@ export function App() {
     <div className="relative w-screen h-dvh bg-slate-900 flex flex-col overflow-hidden select-none">
       {/* Top Barbershop Striped Accent */}
       <div className="barber-awning h-2.5 w-full border-b-2 border-slate-900 shrink-0" />
+      {incomingChallenge && !challengeDismissed && (
+        <div className="relative z-20 flex shrink-0 items-center justify-center gap-2 border-b-2 border-slate-900 bg-amber-200 px-3 py-1.5 text-center text-xs font-bold text-slate-900">
+          <span>
+            Friend challenge: {incomingChallenge.mode === 'endless'
+              ? `${incomingChallenge.hops} hops / ${incomingChallenge.score} points`
+              : `${incomingChallenge.accuracy}% landing accuracy on Stage ${incomingChallenge.stage}`}
+          </span>
+          <button onClick={() => setChallengeDismissed(true)} aria-label="Dismiss friend challenge" className="rounded-full px-1.5 hover:bg-amber-300">×</button>
+        </div>
+      )}
 
       {/* Top Arcade HUD Header */}
       <header className="w-full bg-[#FFFDF7] border-b-3 border-slate-800 px-3 sm:px-5 py-2 flex flex-wrap items-center justify-between gap-2 shrink-0 z-20">

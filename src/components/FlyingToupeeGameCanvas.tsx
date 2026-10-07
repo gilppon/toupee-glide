@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { soundFX } from '../audio/SoundEffects';
 import { Ads } from '../game/ads';
+import { createToupeeShareUrl } from '../game/share';
 import { COACH_STEPS, CoachOverlay } from './CoachOverlay';
 import {
   GENTLEMAN_PROFILES,
@@ -85,6 +86,8 @@ export const FlyingToupeeGameCanvas: React.FC<FlyingToupeeGameCanvasProps> = ({
 
   const [phase, setPhase] = useState<GamePhase>('ready');
   const [summary, setSummary] = useState<RunSummary | null>(null);
+  const [shareUrl, setShareUrl] = useState('');
+  const [shareMessage, setShareMessage] = useState('');
   const [liveHops, setLiveHops] = useState(0);
   const [liveScore, setLiveScore] = useState(0);
   const [bossWindowState, setBossWindowState] = useState<{
@@ -95,6 +98,26 @@ export const FlyingToupeeGameCanvas: React.FC<FlyingToupeeGameCanvasProps> = ({
   const [coachStep, setCoachStep] = useState<number | null>(
     saveData.tutorialDone ? null : 0
   );
+
+  useEffect(() => {
+    let active = true;
+    setShareUrl('');
+    setShareMessage('');
+    if (summary) {
+      void createToupeeShareUrl({
+        mode,
+        score: summary.score ?? 0,
+        hops: summary.hops ?? 0,
+        accuracy: summary.accuracy,
+        stage: saveData.currentStage,
+      }).then((url) => {
+        if (active) setShareUrl(url);
+      });
+    }
+    return () => {
+      active = false;
+    };
+  }, [summary, mode, saveData.currentStage]);
 
   // Mutable engine refs for 60fps loop without React re-render overhead
   const liftPhysicsRef = useRef(new LiftPhysics());
@@ -343,16 +366,16 @@ export const FlyingToupeeGameCanvas: React.FC<FlyingToupeeGameCanvasProps> = ({
 
   // Coach: 3 steps, then persisted so it never shows up twice.
   const advanceCoach = useCallback(() => {
+    if (coachStep == null) return;
+    if (coachStep >= COACH_STEPS.length - 1) {
+      onTutorialDone();
+      setCoachStep(null);
+      handleTriggerLift();
+      return;
+    }
     onFirstInput();
-    setCoachStep((prev) => {
-      if (prev == null) return null;
-      if (prev >= COACH_STEPS.length - 1) {
-        onTutorialDone();
-        return null;
-      }
-      return prev + 1;
-    });
-  }, [onTutorialDone]);
+    setCoachStep((step) => (step == null ? null : step + 1));
+  }, [coachStep, handleTriggerLift, onFirstInput, onTutorialDone]);
 
   const skipCoach = useCallback(() => {
     onFirstInput();
@@ -1202,6 +1225,37 @@ export const FlyingToupeeGameCanvas: React.FC<FlyingToupeeGameCanvasProps> = ({
                   </div>
                 )}
               </div>
+
+              <button
+                onClick={async () => {
+                  const record = mode === 'endless'
+                    ? `${summary.hops ?? 0} hops and ${summary.score ?? 0} points`
+                    : `${summary.accuracy}% landing accuracy on Stage ${saveData.currentStage}`;
+                  const text = `Can you beat my Toupee Glide run: ${record}?`;
+                  const url = shareUrl || window.location.href;
+                  try {
+                    if (navigator.share) {
+                      await navigator.share({ title: 'Toupee Glide challenge', text, url });
+                      setShareMessage('Challenge shared! 💈');
+                      return;
+                    }
+                    await navigator.clipboard.writeText(`${text} ${url}`);
+                    setShareMessage('Challenge link copied! Send it to a friend 💈');
+                  } catch (error) {
+                    if (error instanceof DOMException && error.name === 'AbortError') return;
+                    try {
+                      await navigator.clipboard.writeText(`${text} ${url}`);
+                      setShareMessage('Challenge link copied! Send it to a friend 💈');
+                    } catch {
+                      setShareMessage('Copy the game link from your browser to challenge a friend.');
+                    }
+                  }
+                }}
+                className="w-full rounded-xl bg-fuchsia-100 py-2 text-sm font-bold text-fuchsia-900 border-2 border-slate-800 comic-btn cursor-pointer"
+              >
+                💈 Challenge a friend to beat this run
+              </button>
+              {shareMessage && <p aria-live="polite" className="text-center text-xs font-bold text-emerald-700">{shareMessage}</p>}
 
               <div className="flex flex-col sm:flex-row gap-2.5 pt-1">
                 <button

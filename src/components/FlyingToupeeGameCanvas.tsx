@@ -137,6 +137,8 @@ export const FlyingToupeeGameCanvas: React.FC<FlyingToupeeGameCanvasProps> = ({
   const heliSoundCooldownRef = useRef<number>(0);
   /** True while the browser tab is hidden or the window lost focus. */
   const tabHiddenRef = useRef<boolean>(false);
+  const airPuffsRef = useRef<Array<{ x: number; y: number; radius: number; alpha: number }>>([]);
+  const cameraShakeRef = useRef<number>(0);
 
   // Low-spec mode trims the ambient wind streaks.
   useEffect(() => {
@@ -321,8 +323,19 @@ export const FlyingToupeeGameCanvas: React.FC<FlyingToupeeGameCanvasProps> = ({
     const { glideRatioLevel, equippedStyle } = propsRef.current.saveData;
     liftPhysicsRef.current.applyLiftTap(bodyRef.current, glideRatioLevel, equippedStyle);
     bodyRef.current.isHoldingLift = true;
+
+    // Juice: Air puff ring under the toupee & subtle tap vibration
+    const b = bodyRef.current;
+    airPuffsRef.current.push({
+      x: b.x,
+      y: b.y + 8,
+      radius: 5,
+      alpha: 0.9,
+    });
+    cameraShakeRef.current = Math.max(cameraShakeRef.current, 2.5);
+
     soundFX.playFlapLift();
-  }, []);
+  }, [onFirstInput]);
 
   const handleReleaseLift = useCallback(() => {
     bodyRef.current.isHoldingLift = false;
@@ -659,11 +672,13 @@ export const FlyingToupeeGameCanvas: React.FC<FlyingToupeeGameCanvasProps> = ({
                 // Final target landed! Stage Clear!
                 phaseRef.current = 'landed';
                 setPhase('landed');
+                cameraShakeRef.current = check.isHoney ? 9 : 4.5;
                 if (check.isHoney) {
                   soundFX.playHoneyLanding();
-                  confetti({ particleCount: 55, spread: 65, origin: { y: 0.6 } });
+                  confetti({ particleCount: 85, spread: 75, origin: { y: 0.6 } });
                 } else {
                   soundFX.playNormalLanding();
+                  confetti({ particleCount: 45, spread: 55, origin: { y: 0.6 } });
                 }
 
                 spawnCallout(
@@ -814,50 +829,115 @@ export const FlyingToupeeGameCanvas: React.FC<FlyingToupeeGameCanvasProps> = ({
       // ========================================================================
       ctx.clearRect(0, 0, CANVAS_W, CANVAS_H);
 
-      // A. Sky Gradient Backdrop
+      ctx.save();
+      // Camera shake punch
+      if (cameraShakeRef.current > 0) {
+        const sx = (Math.random() - 0.5) * cameraShakeRef.current * 2;
+        const sy = (Math.random() - 0.5) * cameraShakeRef.current * 2;
+        ctx.translate(sx, sy);
+        cameraShakeRef.current = Math.max(0, cameraShakeRef.current - dt * 12);
+      }
+
+      // A. Dynamic Sunset / Twilight Sky Gradient Backdrop
       const skyGrad = ctx.createLinearGradient(0, 0, 0, GROUND_Y);
       if (curMode === 'boss') {
-        skyGrad.addColorStop(0, '#1E1B4B');
-        skyGrad.addColorStop(0.5, '#4C1D95');
+        skyGrad.addColorStop(0, '#0F0C29');
+        skyGrad.addColorStop(0.4, '#302B63');
+        skyGrad.addColorStop(0.75, '#7E22CE');
         skyGrad.addColorStop(1, '#FDE68A');
       } else if (curMode === 'endless') {
-        skyGrad.addColorStop(0, '#0284C7');
-        skyGrad.addColorStop(0.55, '#7DD3FC');
-        skyGrad.addColorStop(1, '#FEF3C7');
+        skyGrad.addColorStop(0, '#0369A1');
+        skyGrad.addColorStop(0.45, '#38BDF8');
+        skyGrad.addColorStop(0.8, '#FDE047');
+        skyGrad.addColorStop(1, '#FB923C');
       } else {
-        skyGrad.addColorStop(0, '#38BDF8');
-        skyGrad.addColorStop(0.6, '#BAE6FD');
-        skyGrad.addColorStop(1, '#FEF3C7');
+        skyGrad.addColorStop(0, '#0284C7');
+        skyGrad.addColorStop(0.4, '#38BDF8');
+        skyGrad.addColorStop(0.75, '#FDBA74');
+        skyGrad.addColorStop(1, '#FEF08A');
       }
       ctx.fillStyle = skyGrad;
       ctx.fillRect(0, 0, CANVAS_W, GROUND_Y);
 
-      // Fluffy Cartoon Clouds
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.72)';
-      const cloudPositions = [180, 460, 760];
+      // Distant Sun / Twilight Aura
+      ctx.save();
+      const sunGrad = ctx.createRadialGradient(CANVAS_W * 0.75, GROUND_Y * 0.65, 10, CANVAS_W * 0.75, GROUND_Y * 0.65, 150);
+      sunGrad.addColorStop(0, 'rgba(255, 247, 237, 0.55)');
+      sunGrad.addColorStop(0.5, 'rgba(253, 186, 116, 0.22)');
+      sunGrad.addColorStop(1, 'rgba(253, 186, 116, 0)');
+      ctx.fillStyle = sunGrad;
+      ctx.beginPath();
+      ctx.arc(CANVAS_W * 0.75, GROUND_Y * 0.65, 150, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+
+      // Fluffy Glowing Clouds
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.65)';
+      const cloudPositions = [140, 420, 720];
       cloudPositions.forEach((baseX, idx) => {
-        const cx = ((baseX + t * (8 + idx * 3)) % (CANVAS_W + 160)) - 80;
-        const cy = 68 + idx * 28;
+        const cx = ((baseX + t * (7 + idx * 3)) % (CANVAS_W + 160)) - 80;
+        const cy = 60 + idx * 26;
         ctx.beginPath();
-        ctx.arc(cx, cy, 24, 0, Math.PI * 2);
-        ctx.arc(cx + 22, cy - 6, 28, 0, Math.PI * 2);
-        ctx.arc(cx + 46, cy, 22, 0, Math.PI * 2);
+        ctx.arc(cx, cy, 26, 0, Math.PI * 2);
+        ctx.arc(cx + 24, cy - 8, 30, 0, Math.PI * 2);
+        ctx.arc(cx + 52, cy, 24, 0, Math.PI * 2);
         ctx.fill();
       });
 
-      // B. Distant City Skyline Silhouettes
-      ctx.fillStyle = curMode === 'boss' ? 'rgba(30, 27, 75, 0.45)' : 'rgba(148, 163, 184, 0.35)';
-      const buildings = [
-        { x: 210, w: 95, h: 190 },
-        { x: 320, w: 115, h: 240 },
-        { x: 455, w: 85, h: 165 },
-        { x: 560, w: 130, h: 220 },
-        { x: 710, w: 105, h: 185 },
-        { x: 835, w: 110, h: 210 },
+      // B. Triple-Layer Distant City Skyline Silhouettes
+      // Layer 1: Far Skyline (Atmospheric mist)
+      ctx.fillStyle = curMode === 'boss' ? 'rgba(49, 46, 129, 0.35)' : 'rgba(147, 197, 253, 0.28)';
+      const farBuildings = [
+        { x: 50, w: 110, h: 260 },
+        { x: 180, w: 85, h: 300 },
+        { x: 290, w: 130, h: 280 },
+        { x: 450, w: 90, h: 320 },
+        { x: 560, w: 120, h: 270 },
+        { x: 700, w: 140, h: 310 },
+        { x: 860, w: 90, h: 290 },
       ];
-      for (const bld of buildings) {
+      for (const bld of farBuildings) {
         ctx.fillRect(bld.x, GROUND_Y - bld.h, bld.w, bld.h);
+        ctx.fillRect(bld.x + bld.w / 2 - 1.5, GROUND_Y - bld.h - 18, 3, 18);
       }
+
+      // Layer 2: Mid Skyline with Glowing Windows Grid
+      ctx.fillStyle = curMode === 'boss' ? 'rgba(30, 27, 75, 0.62)' : 'rgba(71, 85, 105, 0.42)';
+      const midBuildings = [
+        { x: 190, w: 90, h: 210 },
+        { x: 300, w: 110, h: 250 },
+        { x: 435, w: 80, h: 180 },
+        { x: 540, w: 120, h: 230 },
+        { x: 690, w: 95, h: 200 },
+        { x: 810, w: 115, h: 220 },
+      ];
+      for (const bld of midBuildings) {
+        ctx.fillRect(bld.x, GROUND_Y - bld.h, bld.w, bld.h);
+        // Golden glowing windows
+        ctx.fillStyle = 'rgba(254, 240, 138, 0.42)';
+        for (let wy = GROUND_Y - bld.h + 16; wy < GROUND_Y - 15; wy += 22) {
+          for (let wx = bld.x + 12; wx < bld.x + bld.w - 12; wx += 18) {
+            ctx.fillRect(wx, wy, 8, 12);
+          }
+        }
+        ctx.fillStyle = curMode === 'boss' ? 'rgba(30, 27, 75, 0.62)' : 'rgba(71, 85, 105, 0.42)';
+      }
+
+      // Air Puff Rings (from Flap Lift)
+      for (const puff of airPuffsRef.current) {
+        puff.radius += dt * 55;
+        puff.alpha -= dt * 1.8;
+        if (puff.alpha > 0) {
+          ctx.save();
+          ctx.strokeStyle = `rgba(255, 255, 255, ${puff.alpha})`;
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.arc(puff.x, puff.y, puff.radius, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.restore();
+        }
+      }
+      airPuffsRef.current = airPuffsRef.current.filter((p) => p.alpha > 0);
 
       // C. Left-side Barbershop Building & 2nd-Floor Launch Balcony
       ctx.save();
@@ -989,13 +1069,34 @@ export const FlyingToupeeGameCanvas: React.FC<FlyingToupeeGameCanvasProps> = ({
         ctx.restore();
       }
 
-      // J. Draw Toupee Motion Trail & Player Toupee Sprite (unless already landed on gentleman)
+      // J. Draw Toupee Motion Trail & Trajectory Prediction Arc
+      if (phaseRef.current === 'flying' && body.y < GROUND_Y - 15) {
+        // Dotted Aerodynamic Trajectory Arc Guide
+        ctx.save();
+        let simX = body.x;
+        let simY = body.y;
+        let simVx = body.vx;
+        let simVy = body.vy;
+        const simDt = 0.045;
+        for (let step = 1; step <= 9; step++) {
+          simVy += 360 * simDt; // gravity effect
+          simX += simVx * simDt;
+          simY += simVy * simDt;
+          if (simY >= GROUND_Y) break;
+          ctx.beginPath();
+          ctx.arc(simX, simY, Math.max(1.8, 5 - step * 0.4), 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(255, 255, 255, ${Math.max(0.15, 0.7 - step * 0.06)})`;
+          ctx.fill();
+        }
+        ctx.restore();
+      }
+
       if (phaseRef.current !== 'landed') {
         // Motion trail
         for (let i = 1; i < body.trail.length; i += 2) {
           const tr = body.trail[i];
           ctx.save();
-          ctx.globalAlpha = tr.alpha * 0.28;
+          ctx.globalAlpha = tr.alpha * 0.35;
           ctx.translate(tr.x, tr.y);
           ctx.rotate(tr.angle);
           drawToupeeSprite(ctx, curSave.equippedStyle, body.hairRipplePhase - i * 0.3, 0.88);
@@ -1053,6 +1154,9 @@ export const FlyingToupeeGameCanvas: React.FC<FlyingToupeeGameCanvasProps> = ({
         }
         ctx.restore();
       }
+
+      // Close camera shake transform
+      ctx.restore();
 
       animId = requestAnimationFrame(updateAndDraw);
     };
